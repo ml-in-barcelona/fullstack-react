@@ -1,13 +1,13 @@
 [@react.component]
 let make = (~children, ~background) => {
   <div
-    className={Css.style([
-      Css.margin(`zero),
-      Css.padding(`zero),
-      Css.width(`vw(100.)),
-      Css.height(`vh(100.)),
-      Css.backgroundColor(background),
-    ])}>
+    className={CSS.style([|
+      CSS.margin(`zero),
+      CSS.padding(`zero),
+      CSS.width(`vw(100.)),
+      CSS.height(`vh(100.)),
+      CSS.backgroundColor(background),
+    |])}>
     children
   </div>;
 };

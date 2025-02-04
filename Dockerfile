@@ -1,72 +1,40 @@
-FROM node:16.3-alpine3.12 as build
+FROM ocaml/opam:ubuntu-22.04-ocaml-5.1
 
-ENV TERM=dumb
-ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/lib
+RUN sudo apt-get update && sudo apt-get install -y libev-dev libssl-dev curl
 
-RUN set NODE_OPTIONS=--max-old-space-size=30720
+RUN sudo apt-get remove -y nodejs npm && \
+    sudo apt-get autoremove -y
 
-RUN mkdir /esy
-WORKDIR /esy
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
+    sudo apt-get update && \
+    sudo apt-get install -y nodejs && \
+    sudo npm install -g npm@latest
 
-ENV NPM_CONFIG_PREFIX=/esy
-RUN npm install -g esy@0.7.2
-
-# Alpine image where
-FROM node:16.3-alpine3.12 as esy
-
-ENV TERM=dumb
-ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/lib
-
-COPY --from=build /esy /esy
-
-RUN apk add --no-cache ca-certificates wget bash curl perl-utils git patch gcc g++ musl-dev make m4 coreutils tar xz linux-headers
-
-RUN wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
-RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
-RUN apk add --no-cache glibc-2.28-r0.apk
-
-ENV PATH=/esy/bin:$PATH
+RUN sudo ln -sf /usr/bin/opam-2.2 /usr/bin/opam
 
 WORKDIR /app
 
-# Install npm dependencies
-COPY package*.json ./
-RUN npm ci --only=production
+RUN opam --version
 
-# Install esy dependencies
-ADD esy.json esy.json
-ADD esy.lock/ esy.lock/
-RUN esy --version
-RUN esy solve
-RUN esy fetch
-RUN esy build-dependencies
+COPY *.opam ./
+COPY Makefile ./
 
-# Copy the project (move folder by folder instead of COPY . . to not override _esy folder)
-COPY client/ client/
-COPY shared/ shared/
-COPY server/ server/
-COPY dune dune
-COPY dune-project dune-project
-COPY webpack.config.js webpack.config.js
+RUN opam install . --deps-only --with-test --with-doc --with-dev-setup
 
-# Build client
-RUN esy build
-# Bundle client
-RUN node_modules/.bin/webpack
-# Build server
-RUN esy dune build --profile=prod @@default
+WORKDIR "/app/client"
 
-FROM alpine:3.12 as run
+COPY client/package.json ./package.json
+COPY client/package-lock.json ./package-lock.json
 
-RUN apk update && apk add --update libev gmp git
+RUN sudo npm install
 
-RUN chmod -R 755 /var
+WORKDIR /app
 
-# Copy server binary
-COPY --from=esy /app/_build/default/server/server.exe /bin/server.exe
-# Copy client artifacts
-COPY --from=esy /app/static /static
+COPY . .
 
-ENV SERVER_INTERFACE "0.0.0.0"
+RUN sudo chown -R opam:opam /app
+RUN opam exec -- dune build @server --profile=dev
 
-CMD ["/bin/server.exe"]
+EXPOSE 8080
+
+CMD ["opam", "exec", "--", "_build/default/server/server.exe"]

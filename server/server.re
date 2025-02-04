@@ -39,14 +39,7 @@ module Page = {
           type_="text/css"
           dangerouslySetInnerHTML={"__html": globalStyles}
         />
-        {styles
-         |> List.map(content =>
-              <style
-                type_="text/css"
-                dangerouslySetInnerHTML={"__html": content}
-              />
-            )
-         |> React.list}
+        {React.list(styles)}
       </head>
       <body>
         <div id="root"> children </div>
@@ -61,18 +54,8 @@ let handler =
     Dream.get("/", _request =>
       Dream.html(
         ReactDOM.renderToString(
-          <Page scripts=["/static/app.js"] styles=[Css.render_style_tag()]>
+          <Page scripts=["/static/index.js"] styles=[CSS.style_tag()]>
             <Shared_native.App />
-          </Page>,
-        ),
-      )
-    ),
-    Dream.get("/header", _request =>
-      Dream.html(
-        ReactDOM.renderToString(
-          <Page
-            scripts=["/static/header.js"] styles=[Css.render_style_tag()]>
-            <Shared_native.Ahrefs />
           </Page>,
         ),
       )
@@ -81,8 +64,8 @@ let handler =
       Dream.stream(
         ~headers=[("Content-Type", "text/html")],
         response_stream => {
-          let (stream, _) =
-            ReactDOM.renderToLwtStream(<Page> <Comments.App /> </Page>);
+          let%lwt (stream, _) =
+            ReactDOM.renderToStream(<Page> <Comments.App /> </Page>);
 
           Lwt_stream.iter_s(
             data => {
@@ -94,7 +77,10 @@ let handler =
         },
       )
     ),
-    Dream.get("/static/**", Dream.static("./static")),
+    Dream.get(
+      "/static/**",
+      Dream.static("./_build/default/client/app/dist"),
+    ),
   ]);
 
 let interface =

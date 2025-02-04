@@ -1,6 +1,6 @@
 {
   "ocaml.sandbox": {
-    "kind": "esy",
+    "kind": "opam",
     "root": "${workspaceFolder:fullstack-reason-react-demo}"
   },
   "[reason]": {

@@ -9,26 +9,26 @@ let make =
       ~children,
     ) => {
   let className =
-    Css.style([
-      Css.display(`flex),
-      Css.flexDirection(`row),
-      fullHeight ? Css.height(`percent(100.)) : Css.height(`auto),
-      fullWidth ? Css.width(`percent(100.)) : Css.width(`auto),
+    CSS.style([|
+      CSS.display(`flex),
+      CSS.flexDirection(`row),
+      fullHeight ? CSS.height(`percent(100.)) : CSS.height(`auto),
+      fullWidth ? CSS.width(`percent(100.)) : CSS.width(`auto),
       switch (align) {
-      | `start => Css.alignItems(`flexStart)
-      | `center => Css.alignItems(`center)
-      | `end_ => Css.alignItems(`flexEnd)
+      | `start => CSS.alignItems(`flexStart)
+      | `center => CSS.alignItems(`center)
+      | `end_ => CSS.alignItems(`flexEnd)
       },
       switch (justify) {
-      | `around => Css.justifyContent(`spaceAround)
-      | `between => Css.justifyContent(`spaceBetween)
-      | `evenly => Css.justifyContent(`spaceEvenly)
-      | `start => Css.justifyContent(`flexStart)
-      | `center => Css.justifyContent(`center)
-      | `end_ => Css.justifyContent(`flexEnd)
+      | `around => CSS.justifyContent(`spaceAround)
+      | `between => CSS.justifyContent(`spaceBetween)
+      | `evenly => CSS.justifyContent(`spaceEvenly)
+      | `start => CSS.justifyContent(`flexStart)
+      | `center => CSS.justifyContent(`center)
+      | `end_ => CSS.justifyContent(`flexEnd)
       },
-      Css.gap(Theme.px(gap)),
-    ]);
+      CSS.gap(Theme.px(gap)),
+    |]);
 
   <div className> children </div>;
 };
