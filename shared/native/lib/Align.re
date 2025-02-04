@@ -1,6 +1,9 @@
-// Not sure why verticalAlign type cannot have `top and `bottom.
 type verticalAlign = [ | `center];
-type horizontalAlign = [ | `left | `center | `right];
+type horizontalAlign = [
+  | `left
+  | `center
+  | `right
+];
 
 [@react.component]
 let make = (~h: horizontalAlign=`center, ~v: verticalAlign=`center, ~children) => {

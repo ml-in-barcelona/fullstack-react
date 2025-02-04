@@ -1,17 +1,22 @@
 (executable
  (name server)
+ (public_name fullstack-reason-react-demo.server)
  (libraries
   dream
   shared_native
   server-reason-react.react
   server-reason-react.reactDom
-  styled-ppx.css)
+  lwt
+  lwt.unix
+  styled-ppx.native)
  (preprocess
   (pps server-reason-react.melange_ppx server-reason-react.ppx lwt_ppx)))
 
 (rule
  (alias server)
- (deps ./server.exe)
+ (deps
+  ./server.exe
+  (alias ../client/compile))
  (action
   ; we want dune to write the file but not attach any fsevents listeners to it,
   ; so that watchexec can read from it without issues.

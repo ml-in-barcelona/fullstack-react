@@ -1,8 +1,24 @@
 (melange.emit
- (alias client)
+ (alias melange)
  (target app)
- (modules app)
- (libraries melange shared_js reason-react styled-ppx.css styled-ppx.emotion)
+ (libraries melange shared_js reason-react styled-ppx.melange)
  (preprocess
   (pps melange.ppx reason-react-ppx))
- (module_systems commonjs))
+ (module_systems es6))
+
+(rule
+ (alias compile)
+ (deps
+  app/client/Index.js
+  (alias_rec melange)
+  (:script build.mjs)
+  (:input "app/client/Index.js")
+  (source_tree ../node_modules)
+  (file ../package.json))
+ (target build.stamp)
+ (action
+  (progn
+   (run node %{script} %{input} "app/dist/")
+   (with-stdout-to
+    %{target}
+    (run date)))))

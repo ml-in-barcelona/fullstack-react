@@ -1,5 +1,5 @@
-let useState = a => {
-  let (value, setValue) = React.useState(_ => a);
+let useState = initialValue => {
+  let (value, setValue) = React.useState(_ => initialValue);
   let setValueStatic = value => setValue(_ => value);
   (value, setValueStatic);
 };
@@ -7,7 +7,7 @@ let useState = a => {
 module Counter = {
   [@react.component]
   let make = (~name) => {
-    let (count, setCount) = useState(0);
+    let (count, setCount) = useState(2);
 
     <div>
       <p>
@@ -16,13 +16,15 @@ module Counter = {
          )}
       </p>
       <button onClick={_ => setCount(count + 1)}>
-        {React.string("Click me")}
+        {React.string("Click me nooooow!")}
       </button>
     </div>;
   };
 };
 
 switch (ReactDOM.querySelector("#root")) {
-| Some(el) => ignore @@ ReactDOM.Client.hydrateRoot(el, <Shared_js.App />)
+| Some(el) =>
+  let _root = ReactDOM.Client.hydrateRoot(el, <Shared_js.App />);
+  ();
 | None => ()
 };

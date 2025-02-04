@@ -61,6 +61,6 @@ The folder contains the library for shared code between `client` and `server`. d
 
 The code of shared consist of an app to demostrate a few usages of server-reason-react implementations, such as server-reason-react.css or server-reason-react.js.
 
-- `server-reason-react.css` is the implementation of bs-css in the server. Maintains the same API and does the same functionality as emotion.js but in the server. All Css.* methods are available and generates the hash of the classnames. It also adds a fn `Css.render_style_tag()` to render the resultant CSS in the page, with the intention to be called in native.
+- `server-reason-react.css` is the implementation of bs-css in the server. Maintains the same API and does the same functionality as emotion.js but in the server. All CSS.* methods are available and generates the hash of the classnames. It also adds a fn `CSS.render_style_tag()` to render the resultant CSS in the page, with the intention to be called in native.
 - `server-reason-react.belt` is the implementation of [Belt](https://rescript-lang.org/docs/manual/latest/api/belt) in pure OCaml.
 - `server-reason-react.js` is an incomplete implementation of [Js](https://rescript-lang.org/docs/manual/latest/api/js)

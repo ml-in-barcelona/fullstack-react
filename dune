@@ -1,1 +1,1 @@
-(dirs static vendor shared server client)
+(dirs shared server client)

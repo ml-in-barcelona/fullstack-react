@@ -1,8 +1,10 @@
 (library
  (name shared_js)
  (modes melange)
- (libraries melange reason-react styled-ppx.emotion)
+ (libraries melange melange.belt reason-react styled-ppx.melange)
  (preprocess
   (pps styled-ppx melange.ppx reason-react-ppx)))
 
-(copy_files# "../native/lib/*.re")
+(copy_files
+ (only_sources)
+ (files "../native/lib/*.re"))

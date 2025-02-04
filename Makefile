@@ -3,26 +3,37 @@
 name = fullstack-reason-react-demo
 current_hash = $(shell git rev-parse HEAD | cut -c1-7)
 
-ESY = esy
-DUNE = esy dune
+OPAM = opam
+DUNE = opam exec -- dune
 WEBPACK = npx webpack --progress
 
+.PHONY: init
+setup-githooks: ## Setup githooks
+	git config core.hooksPath .githooks
+
+.PHONY: create-switch
+create-switch: ## Create opam switch
+	opam switch create . 5.1.1 --deps-only --with-test -y
+
 .PHONY: install
-install: ## Install dependencies from esy.json and package.json
-	@$(ESY) install
-	@npm install
+install:
+	opam install . --deps-only --with-test --with-doc --with-dev-setup
 
-.PHONY: webpack
-webpack: ## Bundle the JS code
-	@$(WEBPACK) --env development
+.PHONY: pin
+pin: ## Pin dependencies
+	opam pin add styled-ppx "https://github.com/davesnx/styled-ppx.git#fix/upgrade-srr"
+	opam pin add server-reason-react "https://github.com/ml-in-barcelona/server-reason-react.git#main"
 
-.PHONY: webpack-prod
-webpack-prod: ## Bundle the JS code for production
-	@$(WEBPACK) --env production
+.PHONY: init
+init: setup-githooks create-switch pin install install-npm ## Create a local dev enviroment
 
-.PHONY: webpack-watch
-webpack-watch: ## Watch and bundle the JS code
-	@$(WEBPACK) --watch --env development
+.PHONY: build
+build: ## Build
+	@$(DUNE) build @server
+
+.PHONY: build-watch
+build-watch: ## Build
+	@$(DUNE) build @server --watch
 
 .PHONY: build-client
 build-client: ## Build Reason code
@@ -36,27 +47,22 @@ build-client-watch: ## Watch reason code
 build-server-prod: ## Build for production (--profile=prod)
 	@$(DUNE) build --profile=prod @server
 
-.PHONY: build-server
-build-server: ## Build the project, including non installable libraries and executables
-	@$(DUNE) build @server
-
 .PHONY: start-server
 start-server: ## Start the server
 	@$(DUNE) exec server/server.exe --watch
 
 .PHONY: run
-run: ## Start the server in dev mode
+dev: ## Start the server in dev mode
 	@watchexec --no-ignore -w .processes/last_built_at.txt -r -c \
 	"clear; _build/default/server/server.exe"
 
 .PHONY: watch
 watch: ## Build in watch mode
-	@$(DUNE) build -w @client @server
+	@$(DUNE) build -w @server
 
 .PHONY: clean
 clean: ## Clean artifacts
 	@$(DUNE) clean
-	@rm -rf static/
 
 .PHONY: format
 format: ## Format the codebase with ocamlformat/refmt
@@ -80,4 +86,4 @@ docker-build: ## docker build
 
 .PHONY: docker-run
 docker-run: ## docker run
-	@docker run -d --platform linux/amd64 @$(name):$(current_hash)
+	@docker run -d --platform linux/amd64 $(name):$(current_hash)
